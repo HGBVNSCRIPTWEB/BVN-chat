@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BVN Chat</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf3f9;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172536}
+button,input{font:inherit}button{cursor:pointer;border:0}.shell{height:100dvh;max-width:1150px;margin:auto;background:white;display:grid;grid-template-columns:320px 1fr;box-shadow:0 8px 40px #19365314}
+.sidebar{border-right:1px solid #e5edf5;display:flex;flex-direction:column;min-width:0}.brand{padding:20px 22px;font-size:27px;font-weight:900;color:#1685f8;display:flex;align-items:center;justify-content:space-between}.brand small{font-size:11px;color:#9aa9b8;font-weight:500}
+.auth{padding:15px 20px;border-bottom:1px solid #e8eef5}.auth h3{margin:0 0 12px;font-size:17px}.auth input,.search{width:100%;padding:11px 12px;border:1px solid #dce6f0;border-radius:11px;margin-bottom:8px;outline:none}.auth input:focus,.search:focus{border-color:#1685f8}.buttons{display:flex;gap:8px}.btn{padding:10px 13px;border-radius:10px;background:#edf4fb;color:#54708b;font-weight:650}.primary{background:#1685f8;color:white}.authmsg{font-size:12px;color:#d05a51;min-height:18px;margin-top:5px}.userbar{display:none;padding:12px 20px;background:#f7faff;align-items:center;gap:10px;border-bottom:1px solid #e8eef5}.avatar{width:42px;height:42px;border-radius:50%;background:#1685f8;color:white;display:grid;place-items:center;font-weight:800;flex-shrink:0}.usertext{flex:1;min-width:0}.usertext b{display:block;overflow:hidden;text-overflow:ellipsis}.usertext small{color:#8a9aaa;font-size:12px}.logout{background:#fff;border:1px solid #e3ebf3;color:#60768b;border-radius:9px;padding:7px 9px;font-size:12px}
+.contacts{padding:16px 18px 8px;font-weight:750}.search{margin:8px 18px 10px;width:calc(100% - 36px);background:#f7f9fc}.userlist{overflow:auto;flex:1;padding:0 8px 12px}.person{width:100%;display:flex;align-items:center;gap:11px;padding:11px;border-radius:12px;background:white;text-align:left}.person:hover,.person.selected{background:#eaf4ff}.person .avatar{width:40px;height:40px}.person strong{display:block;font-size:14px}.person small{display:block;color:#8a9aaa;font-size:12px;margin-top:3px}
+.main{display:flex;flex-direction:column;min-width:0;background:#f8fbff}.top{height:76px;display:flex;align-items:center;gap:12px;padding:0 24px;background:white;border-bottom:1px solid #e5edf5}.top .avatar{width:42px;height:42px}.top strong{font-size:16px}.top small{display:block;color:#8a9aaa;font-size:12px;margin-top:3px}.feed{flex:1;overflow:auto;padding:24px clamp(14px,5vw,60px);display:flex;flex-direction:column;gap:12px}.welcome{margin:auto;text-align:center;color:#8999aa;max-width:300px}.welcome .emoji{font-size:55px}.welcome h2{color:#3b5369;font-size:21px}.bubble-row{display:flex;max-width:78%;align-items:flex-end;gap:7px}.bubble-row.mine{align-self:flex-end;flex-direction:row-reverse}.bubble{background:white;border:1px solid #e8eef5;border-radius:16px 16px 16px 5px;padding:10px 14px;line-height:1.45;overflow-wrap:anywhere;white-space:pre-wrap}.mine .bubble{background:#1685f8;color:white;border-color:#1685f8;border-radius:16px 16px 5px 16px}.time{font-size:10px;color:#97a5b4;white-space:nowrap;margin-bottom:2px}.composer{display:flex;gap:9px;padding:14px 20px 18px;background:white;border-top:1px solid #e5edf5}.composer input{flex:1;min-width:0;border:1px solid #e2eaf2;background:#f6f9fc;border-radius:13px;padding:12px 14px;outline:none}.composer input:focus{border-color:#1685f8}.send{background:#1685f8;color:white;border-radius:12px;padding:0 18px;font-size:18px}.send:disabled{opacity:.45;cursor:not-allowed}.foot{text-align:center;background:white;color:#a4b0bd;font-size:10px;padding:0 0 10px}
+
+.auth-screen{min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 15% 10%,#8ed5ff55,transparent 32%),radial-gradient(circle at 90% 85%,#9b8bff55,transparent 34%),linear-gradient(135deg,#07182e,#102d50 52%,#17234b);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172536}
+.auth-card{width:min(100%,440px);position:relative;overflow:hidden;border:1px solid #ffffff30;border-radius:28px;background:#ffffffed;box-shadow:0 28px 90px #020b1c70;padding:clamp(24px,6vw,42px)}
+.auth-card:before{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-85px;top:-90px;background:linear-gradient(135deg,#6ecbff66,#8d7dff55);pointer-events:none}
+.auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;position:relative}
+.auth-logo-mark{width:50px;height:50px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#39b8ff,#5865f2);color:white;font-size:25px;font-weight:900;box-shadow:0 9px 24px #3b91f344}
+.auth-logo b{font-size:24px;letter-spacing:-.8px}.auth-logo small{display:block;color:#8292a7;font-size:10px;letter-spacing:2.5px;font-weight:800;margin-top:1px}
+.auth-kicker{color:#3987d9;font-size:11px;letter-spacing:2px;font-weight:850;margin-bottom:8px}
+.auth-title{font-size:clamp(27px,6vw,34px);letter-spacing:-1.2px;line-height:1.12;margin:0 0 10px;color:#132a45}
+.auth-subtitle{margin:0 0 25px;color:#718198;font-size:14px;line-height:1.55}
+.auth-field{margin:0 0 14px}.auth-field label{display:block;font-size:12px;font-weight:750;color:#435873;margin:0 0 7px}
+.auth-field input{width:100%;height:51px;border:1px solid #dce6f1;border-radius:14px;background:#f7faff;padding:0 15px;outline:none;color:#1a304a;transition:.18s}
+.auth-field input:focus{border-color:#5baeff;background:white;box-shadow:0 0 0 4px #55aaff19}
+.auth-primary{width:100%;height:52px;border-radius:15px;margin-top:7px;background:linear-gradient(100deg,#1685f8,#5267f5);color:white;font-weight:800;letter-spacing:.2px;box-shadow:0 10px 24px #2c8ff13a;transition:transform .15s,filter .15s}
+.auth-primary:active{transform:scale(.985)}.auth-primary:disabled{opacity:.6;cursor:not-allowed}
+.auth-switch{margin:20px 0 0;text-align:center;color:#7b8ba0;font-size:13px}.auth-switch button{background:transparent;color:#187fe8;font-weight:850;padding:3px 4px}
+.auth-msg{min-height:20px;margin-top:12px;font-size:12px;text-align:center;color:#d05a51;line-height:1.45}
+.auth-security{display:flex;justify-content:center;gap:7px;align-items:center;margin-top:19px;color:#9aa8b8;font-size:11px}
+
+.password-wrap{position:relative}
+.password-wrap input{padding-right:76px!important}
+.password-toggle{position:absolute;right:9px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#277ed2;font-size:12px;font-weight:800;padding:8px;border-radius:8px;cursor:pointer}
+.password-toggle:focus-visible{outline:2px solid #5baeff}
+
+.auth-screen[hidden]{display:none!important}
+@media(max-width:480px){.auth-screen{padding:14px}.auth-card{border-radius:24px;padding:27px 22px}.auth-logo{margin-bottom:24px}}
+@media(max-width:700px){.shell{grid-template-columns:1fr}.sidebar{display:flex}.main{display:none}.shell.open-chat .sidebar{display:none}.shell.open-chat .main{display:flex}.top{padding:0 13px;height:68px}.feed{padding:18px 13px}.composer{padding:11px}.bubble-row{max-width:90%}.brand{padding:15px 18px}.auth{padding:12px 16px}}
+</style>
+</head>
+<body>
+
+<div class="auth-screen" id="authScreen">
+ <section class="auth-card">
+  <div class="auth-logo"><div class="auth-logo-mark">B</div><div><b>BVN</b><small>CHAT • CONNECT</small></div></div>
+  <div class="auth-kicker" id="authKicker">WELCOME BACK</div>
+  <h1 class="auth-title" id="authTitle">Đăng nhập<br>vào BVN</h1>
+  <p class="auth-subtitle" id="authSubtitle">Kết nối với bạn bè, chia sẻ những câu chuyện mỗi ngày.</p>
+  <form id="authForm">
+   <div class="auth-field"><label for="email">Gmail / Email</label><input id="email" type="email" placeholder="tenban@gmail.com" autocomplete="email" required></div>
+   <div class="auth-field"><label for="password">Mật khẩu</label><div class="password-wrap"><input id="password" type="password" placeholder="Nhập mật khẩu" autocomplete="current-password" minlength="6" required><button class="password-toggle" type="button" data-toggle="password">Hiện</button></div></div>
+   <div class="auth-field" id="confirmField" hidden><label for="confirmPassword">Xác nhận mật khẩu</label><div class="password-wrap"><input id="confirmPassword" type="password" placeholder="Nhập lại mật khẩu" autocomplete="new-password" minlength="6"><button class="password-toggle" type="button" data-toggle="confirmPassword">Hiện</button></div></div>
+   <button class="auth-primary" id="authSubmit" type="submit">Đăng nhập</button>
+  </form>
+  <div class="auth-msg" id="authmsg" role="status">Bạn chưa có tài khoản? Đăng ký miễn phí nhé.</div>
+  <p class="auth-switch" id="authSwitch">Chưa có tài khoản? <button type="button" id="switchAuth">Đăng kí</button></p>
+  <div class="auth-security">♧ <span>Đăng nhập an toàn với Firebase</span></div>
+ </section>
+</div>
+
+<div class="shell" id="shell" style="display:none">
+<aside class="sidebar">
+ <div class="brand">BVN <small>CHAT ONLINE</small></div>
+ <div class="userbar" id="userbar"><div class="avatar" id="myavatar">B</div><div class="usertext"><b id="myname">Tài khoản</b><small>Đang đăng nhập</small></div><button class="logout" id="logout">Thoát</button></div>
+ <div class="contacts">Bạn bè</div><input class="search" id="search" placeholder="Tìm bạn bằng email..." disabled>
+ <div class="userlist" id="userlist"><div style="padding:15px;color:#94a3b2;font-size:13px">Đăng nhập để xem danh sách người dùng.</div></div>
+</aside>
+<main class="main">
+ <header class="top"><button class="btn" id="back" style="display:none">‹</button><div class="avatar" id="chatavatar">BV</div><div><strong id="chatname">BVN Chat</strong><small id="chatstatus">Đăng nhập và chọn bạn để chat</small></div></header>
+ <section class="feed" id="feed"><div class="welcome"><div class="emoji">💬</div><h2>Chào mừng đến BVN</h2><p>Đăng nhập, tìm email bạn bè và bắt đầu trò chuyện.</p></div></section>
+ <form class="composer" id="form"><input id="message" placeholder="Nhập tin nhắn..." autocomplete="off" disabled><button class="send" id="send" disabled>➤</button></form>
+ <div class="foot">BVN • Kết nối bạn bè</div>
+</main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, getDocs, addDoc, onSnapshot, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDn2Foe-msO6VDxU9_x85EySh7pAjuASZg",
+  authDomain: "bvn-chat.firebaseapp.com",
+  projectId: "bvn-chat",
+  storageBucket: "bvn-chat.firebasestorage.app",
+  messagingSenderId: "440676537221",
+  appId: "1:440676537221:web:675686f46ae12f7dddeaec"
+};
+
+const configured = !Object.values(firebaseConfig).some(v => String(v).includes("YOUR_"));
+const $ = id => document.getElementById(id);
+let auth, db, currentUser = null, chosen = null, stopMessages = null, people = [];
+const colors = ['#1685f8', '#7d62dd', '#e17a45', '#1da98b', '#d85b8c', '#538bb5'];
+
+function initials(s) {
+  return (s || 'BVN').split(/[.@\s_-]+/).filter(Boolean).slice(0, 2).map(x => x[0].toUpperCase()).join('');
+}
+
+function showMsg(t, ok = false) {
+  $('authmsg').style.color = ok ? '#168d63' : '#d05a51';
+  $('authmsg').textContent = t;
+}
+
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+let authMode = 'login';
+function setAuthMode(mode) {
+  authMode = mode;
+  const registering = mode === 'signup';
+  $('authKicker').textContent = registering ? 'CREATE YOUR ACCOUNT' : 'WELCOME BACK';
+  $('authTitle').innerHTML = registering ? 'Tạo tài khoản<br>BVN của bạn' : 'Đăng nhập<br>vào BVN';
+  $('authSubtitle').textContent = registering
+    ? 'Chỉ vài bước là bạn có thể bắt đầu trò chuyện với bạn bè.'
+    : 'Kết nối với bạn bè, chia sẻ những câu chuyện mỗi ngày.';
+  $('password').autocomplete = registering ? 'new-password' : 'current-password';
+  $('confirmField').hidden = !registering;
+  $('confirmPassword').required = registering;
+  $('confirmPassword').value = '';
+  $('authSubmit').textContent = registering ? 'Tạo tài khoản' : 'Đăng nhập';
+  $('authSwitch').innerHTML = registering
+    ? 'Đã có tài khoản? <button type="button" id="switchAuth">Đăng nhập</button>'
+    : 'Chưa có tài khoản? <button type="button" id="switchAuth">Đăng kí</button>';
+  $('authmsg').textContent = '';
+  $('authmsg').style.color = '#d05a51';
+}
+
+function setLoading(loading) {
+  $('authSubmit').disabled = loading;
+  $('authSubmit').textContent = loading
+    ? (authMode === 'signup' ? 'Đang tạo tài khoản...' : 'Đang đăng nhập...')
+    : (authMode === 'signup' ? 'Tạo tài khoản' : 'Đăng nhập');
+}
+
+async function signup() {
+  const email = $('email').value.trim().toLowerCase();
+  const password = $('password').value;
+  const confirm = $('confirmPassword').value;
+
+  if (password !== confirm) {
+    showMsg('Mật khẩu xác nhận chưa khớp.');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      uid: cred.user.uid,
+      email,
+      name: email.split('@')[0],
+      createdAt: serverTimestamp()
+    });
+    showMsg('Đăng ký thành công! Đang mở BVN...', true);
+  } catch (e) {
+    showMsg(errorText(e));
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function login() {
+  const email = $('email').value.trim().toLowerCase();
+  const password = $('password').value;
+
+  setLoading(true);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    showMsg('Đăng nhập thành công!', true);
+  } catch (e) {
+    showMsg(errorText(e));
+  } finally {
+    setLoading(false);
+  }
+}
+
+function errorText(e) {
+  const messages = {
+    'auth/invalid-email': 'Email/Gmail không đúng định dạng.',
+    'auth/email-already-in-use': 'Email này đã có tài khoản BVN. Hãy đăng nhập.',
+    'auth/weak-password': 'Mật khẩu quá yếu. Hãy dùng ít nhất 6 ký tự.',
+    'auth/invalid-credential': 'Email hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.',
+    'auth/user-not-found': 'Không tìm thấy tài khoản với email này. Hãy đăng ký trước.',
+    'auth/wrong-password': 'Mật khẩu không đúng. Hãy thử lại.',
+    'auth/too-many-requests': 'Bạn thử sai quá nhiều lần. Hãy đợi một lúc rồi thử lại.',
+    'auth/network-request-failed': 'Lỗi kết nối. Hãy kiểm tra Internet rồi thử lại.',
+    'auth/operation-not-allowed': 'Firebase chưa bật phương thức đăng nhập Email/Password.',
+    'auth/invalid-password': 'Mật khẩu không hợp lệ. Hãy dùng ít nhất 6 ký tự.'
+  };
+  return messages[e.code] || 'Có lỗi xảy ra: ' + (e.message || 'Vui lòng thử lại.');
+}
+
+$('logout').onclick = () => signOut(auth);
+
+$('authForm').addEventListener('submit', e => {
+  e.preventDefault();
+  authMode === 'signup' ? signup() : login();
+});
+
+document.querySelectorAll('[data-toggle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = $(btn.dataset.toggle);
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.textContent = show ? 'Ẩn' : 'Hiện';
+  });
+});
+
+$('authSwitch').addEventListener('click', e => {
+  if (e.target.closest('#switchAuth')) {
+    setAuthMode(authMode === 'signup' ? 'login' : 'signup');
+  }
+});
+
+$('search').oninput = renderPeople;
+
+function renderPeople() {
+  const q = $('search').value.trim().toLowerCase();
+  $('userlist').innerHTML = '';
+  const filtered = people.filter(p => p.uid !== currentUser?.uid && p.email.toLowerCase().includes(q));
+  if (!filtered.length) {
+    $('userlist').innerHTML = '<div style="padding:15px;color:#94a3b2;font-size:13px">Chưa thấy bạn nào. Bạn bè cần đăng ký BVN trước nhé.</div>';
+    return;
+  }
+  filtered.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'person' + (chosen?.uid === p.uid ? ' selected' : '');
+    b.innerHTML = `<div class="avatar" style="background:${colors[i % colors.length]}">${esc(initials(p.name || p.email))}</div><div><strong>${esc(p.name || p.email.split('@')[0])}</strong><small>${esc(p.email)}</small></div>`;
+    b.onclick = () => openChat(p);
+    $('userlist').appendChild(b);
+  });
+}
+
+async function loadPeople() {
+  const snap = await getDocs(collection(db, 'users'));
+  people = snap.docs.map(d => d.data());
+  renderPeople();
+}
+
+async function openChat(p) {
+  chosen = p;
+  renderPeople();
+  $('chatname').textContent = p.name || p.email.split('@')[0];
+  $('chatstatus').textContent = p.email;
+  $('chatavatar').textContent = initials(p.name || p.email);
+  $('message').disabled = false;
+  $('send').disabled = false;
+  $('shell').classList.add('open-chat');
+  $('back').style.display = 'block';
+  if (stopMessages) stopMessages();
+
+  const members = [currentUser.uid, p.uid].sort();
+  const chatId = members.join('_');
+  const chatRef = doc(db, 'chats', chatId);
+  const chatSnap = await getDoc(chatRef);
+  if (!chatSnap.exists()) {
+    await setDoc(chatRef, { members, memberEmails: [currentUser.email, p.email], updatedAt: serverTimestamp() });
+  }
+
+  const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('createdAt', 'asc'));
+  stopMessages = onSnapshot(q, snap => {
+    const feed = $('feed');
+    feed.innerHTML = '';
+    snap.forEach(d => {
+      const m = d.data();
+      const row = document.createElement('div');
+      row.className = 'bubble-row' + (m.senderId === currentUser.uid ? ' mine' : '');
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = m.text;
+      const time = document.createElement('span');
+      time.className = 'time';
+      time.textContent = m.createdAt?.toDate?.().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) || '';
+      row.append(bubble, time);
+      feed.appendChild(row);
+    });
+    if (!snap.size) {
+      feed.innerHTML = '<div class="welcome"><div class="emoji">👋</div><h2>Bắt đầu trò chuyện</h2><p>Gửi lời chào đầu tiên cho bạn bè.</p></div>';
+    }
+    feed.scrollTop = feed.scrollHeight;
+  });
+}
+
+$('form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const text = $('message').value.trim();
+  if (!text || !chosen || !currentUser) return;
+  $('message').value = '';
+  const members = [currentUser.uid, chosen.uid].sort();
+  const chatId = members.join('_');
+  try {
+    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+      text,
+      senderId: currentUser.uid,
+      createdAt: serverTimestamp()
+    });
+    await setDoc(doc(db, 'chats', chatId), {
+      members,
+      memberEmails: [currentUser.email, chosen.email],
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (err) {
+    alert('Không gửi được tin nhắn: ' + err.message);
+  }
+});
+
+$('back').onclick = () => $('shell').classList.remove('open-chat');
+
+if (!configured) {
+  showMsg('Cần cấu hình Firebase trước.');
+  $('authSubmit').disabled = true;
+} else {
+  const app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  onAuthStateChanged(auth, async user => {
+    currentUser = user;
+    $('authScreen').hidden = !!user;
+    $('shell').style.display = user ? 'grid' : 'none';
+    $('userbar').style.display = user ? 'flex' : 'none';
+    $('search').disabled = !user;
+    if (user) {
+      $('myname').textContent = user.email;
+      $('myavatar').textContent = initials(user.email);
+      await loadPeople();
+    } else {
+      people = [];
+      chosen = null;
+      setAuthMode('login');
+      if (stopMessages) stopMessages();
+      $('userlist').innerHTML = '<div style="padding:15px;color:#94a3b2;font-size:13px">Đăng nhập để xem người dùng.</div>';
+      $('message
